@@ -55,7 +55,7 @@ defmodule GameTest do
     { game, _tally } = Game.make_move(game, "a")
     assert game.game_state == :bad_guess
     assert game.turns_left == 6
-    { game, _tally } = Game.make_move(game, "b")
+    { game, _tally } = Game.make_move(game, "p")
     assert game.game_state == :bad_guess
     assert game.turns_left == 5
     { game, _tally } = Game.make_move(game, "c")
