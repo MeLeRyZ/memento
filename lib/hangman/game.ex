@@ -4,7 +4,7 @@ defmodule Hangman.Game do
         turns_left: 7,
         game_state: :initializing,
         letters:    [],
-        used:       MapSet.new(),
+        used:       MapSet.new()
     )
 
     def new_game(word) do
@@ -17,7 +17,7 @@ defmodule Hangman.Game do
         new_game("zxvcasdfqwer")
     end
 
-    def make_move(game = %{game_state: state}, 
+    def make_move(game = %{game_state: state},
                   _guess) when state in [:won, :lost] do
         game
     end
@@ -56,10 +56,10 @@ defmodule Hangman.Game do
     end
 
     defp score_guess(game = %{turns_left: turns_left}, _not_good_guess) do
-        %{ game | 
+        %{ game |
             game_state: :bad_guess,
             turns_left: turns_left - 1
-        } 
+        }
     end
 
     defp reveal_guessed(letters, used) do
