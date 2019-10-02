@@ -28,10 +28,8 @@ defmodule do
 
   test "first occurence of letter is not alredy used" do
     game = Game.new_game()
-
     { game, _tally } = Game.make_move(game, "x")
     assert game.game_state != :already_used
-
     { game, _tally } = Game.make_move(game, "x")
     assert game.game_state == :already_used
   end
