@@ -1,5 +1,7 @@
 defmodule Hangman.Game do
 
+    alias Hangman.Dictionary
+
     defstruct(
         turns_left: 7,
         game_state: :initializing,
@@ -14,34 +16,29 @@ defmodule Hangman.Game do
     end
 
     def new_game() do
-        new_game("zxvcasdfqwer")
+        new_game(Dictionary.random_word)
     end
 
     def make_move(game = %{game_state: state},
                   _guess) when state in [:won, :lost] do
-        game
+        { game, tally(game) }
     end
 
     def make_move(game, guess) do
-        accept_move(game, guess, MapSet.member?(game.used, guess))
+        game = accept_move(game, guess, MapSet.member?(game.used, guess))
+        { game, tally(game) }
     end
 
-    def tally(game) do
-        %{
-            game_state: game.game_state,
-            turns_left: game.turns_left,
-            letters:    game.letters |> reveal_guessed(game.used)
-        }
-    end
 
     ### Private Functions ###
 
-    defp accept_move(game, guess, _already_guessed = true) do
+    defp accept_move(game, _guess, _already_guessed = true) do
         Map.put(game, :game_state, :already_used)
     end
 
     defp accept_move(game, guess, _already_guessed) do
         Map.put(game, :used, MapSet.put(game.used, guess))
+        |> score_guess(Enum.member?(game.letters, guess))
     end
 
     defp score_guess(game, _good_guess = true) do
@@ -57,8 +54,16 @@ defmodule Hangman.Game do
 
     defp score_guess(game = %{turns_left: turns_left}, _not_good_guess) do
         %{ game |
-            game_state: :bad_guess,
-            turns_left: turns_left - 1
+           game_state: :bad_guess,
+           turns_left: turns_left - 1
+        }
+    end
+
+    def tally(game) do
+        %{
+            game_state: game.game_state,
+            turns_left: game.turns_left,
+            letters:    game.letters |> reveal_guessed(game.used)
         }
     end
 
@@ -67,8 +72,8 @@ defmodule Hangman.Game do
         |> Enum.map(fn letter -> reveal_letter(letter, MapSet.member?(used, letter)) end)
     end
 
-    defp reveal_letter(_in_word = true, letter), do: letter
-    defp reveal_letter(_not_in_word, letter), do: "_"
+    defp reveal_letter(letter, _in_word = true), do: letter
+    defp reveal_letter(letter, _not_in_word), do: "_"
 
     defp may_won(true), do: :won
     defp may_won(_),    do: :good_guess
